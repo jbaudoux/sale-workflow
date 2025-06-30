@@ -11,7 +11,7 @@
                     type="object"
                     class="oe_highlight"
                     string="Paid"
-                    invisible="state != 'sent'"
+                    invisible="state not in ('draft', 'sent')"
                 />
             </button>
         </field>
