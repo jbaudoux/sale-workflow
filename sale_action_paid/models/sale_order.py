@@ -13,8 +13,13 @@ class SaleOrder(models.Model):
             self.env["ir.config_parameter"].sudo().get_param("sale.automatic_invoice")
         )
         for order in self.filtered(lambda so: so.state in ("draft", "sent")):
-            tx = order.sudo().transaction_ids._get_last()
-            if tx and tx.state == "pending":
+            txs = order.sudo().transaction_ids.filtered(
+                lambda t: t.state in ("draft", "pending")
+            )
+            tx = txs._get_last()
+            if not tx:
+                tx = txs.sorted()[:1]
+            if tx:
                 tx._set_done()
                 # Prevent to generate a new payment for marking the invoice as paid.
                 # This will disable the send_payment_succeeded_for_order_mail,
